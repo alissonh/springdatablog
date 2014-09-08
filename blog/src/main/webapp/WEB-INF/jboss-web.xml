@@ -1,0 +1,3 @@
+<jboss-web>
+  <context-root>blog</context-root>
+</jboss-web>

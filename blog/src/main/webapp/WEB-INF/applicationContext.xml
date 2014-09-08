@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/data/jpa/spring-jpa.xsd http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/data/repository http://www.springframework.org/schema/data/repository/spring-repository-1.0.xsd
+		http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+ 
+  
+     <!-- Indica ao spring que as configurações dos beans são por anotações -->
+    <context:annotation-config/>
+
+    <!-- Necessário para o Spring 3 encontrar as classes anotadas -->
+    <context:component-scan base-package="br.com.integrator"/>
+
+    <!--suppress UnparsedCustomBeanInspection -->
+    <jpa:repositories base-package="br.com.integrator.repository"/>
+
+   
+   <bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="persistenceUnitName" value="blogPU" />
+		<property name="dataSource" ref="dataSource" />
+		
+		<property name="jpaVendorAdapter">
+		
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect" />
+				<property name="showSql" value="true" /> 
+			</bean>
+		</property>
+	</bean>
+   
+
+  
+   <!-- Configuracao do gerente de transacoes do Spring . Para tomcat usa isso 
+	
+	
+	
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	-->
+  
+ <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager" />
+   
+  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName">
+            <value>java:/blog-ds</value>
+         </property>
+  </bean>
+ 
+  
+  <!-- Tomcat
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/spring-data-jpa"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
+    </bean>
+    -->
+    <!--
+      <jee:jndi-lookup id="dataSource" jndi-name="java:/blog-ds"/>
+    
+   
+       Para pegar datasource via JNDI
+       
+       <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/blogDS"/>
+       
+       ou
+       
+       <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+			<property name="jndiName">
+				<value>java:jboss/datasources/sampleDS</value>
+			</property>
+		</bean>
+		
+		exemplo:
+		Adicione os Namespaces
+		xmlns:jee="http://www.springframework.org/schema/jee"
+xsi:schemaLocation="http://www.springframework.org/schema/jee
+        http://www.springframework.org/schema/jee/spring-jee-3.0.xsd"
+
+<jee:jndi-lookup expected-type="javax.sql.DataSource" id="dataSource" jndi-name="java:jboss/SAMPLE_JNDI"/>
+    --> 
+
+	<!--
+	 - Activate auditing by using namespace element
+	 - Reference AuditorAware to also keep track of WHO changed entities
+	-->
+  
+  <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+       <property name="objectMapper">
+            <ref bean="JacksonObjectMapper" />
+       </property>
+</bean>
+
+<bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+    <property name="objectMapper">
+         <ref bean="JacksonObjectMapper" />
+    </property>
+</bean>
+
+<bean id="JacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper" />
+  
+  
+ 
+</beans>
